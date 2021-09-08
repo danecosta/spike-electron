@@ -10,6 +10,11 @@
     "test": "ng test",
     "start:electron": "ng build --base-href ./ && electron ."
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "~12.1.2",

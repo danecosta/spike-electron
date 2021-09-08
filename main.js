@@ -41,7 +41,15 @@ app.on('activate', function () {
 
 function openModal() {
   const { BrowserWindow } = require('electron');
-  let modal = new BrowserWindow({ parent: mainWindow, modal: true, show: false, nodeIntegration: true })
+  let modal = new BrowserWindow({
+    parent: mainWindow,
+    modal: true,
+    show: false,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: true
+    }
+  })
   modal.loadURL('https://www.sitepoint.com')
   modal.once('ready-to-show', () => {
     modal.show()

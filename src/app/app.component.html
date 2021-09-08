@@ -1,3 +1,10 @@
-<button (click)="openModal()">
-  Open Modal
+<button type="button" (click)="openModal()">
+  Abrir Modal
 </button>
+
+<p>Arquivos</p>
+<ul *ngFor="let entry of entries">
+  <li>
+    <p (click)="changeDir(entry)">{{entry}}</p>
+  </li>
+</ul>
