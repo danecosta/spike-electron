@@ -7,13 +7,15 @@ import { IpcRenderer } from 'electron';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'spike-electron';
   private ipc: IpcRenderer
   private fs: any
   private path: any
   private shell: any
 
-  private currentPath: string;
+  nomeNovoArquivo: string;
+  nomeNovoDir: string;
+  novoNomeArquivo: string;
+  currentPath: string;
   entries: Array<string>;
 
   constructor() {
@@ -38,9 +40,7 @@ export class AppComponent implements OnInit {
 
   private updateEntries() {
     this.fs.readdir(this.currentPath, (err: Error, files: [string]) => {
-      if (err) {
-        console.error(err);
-      }
+      if (err) throw err;
       this.entries = ['../'].concat(files);
     });
   }
@@ -50,18 +50,17 @@ export class AppComponent implements OnInit {
     console.log("old path " + this.currentPath)
     console.log("new path" + targetPath)
     this.fs.stat(targetPath, (err: Error, stats: any) => {
-      if (err) {
-        console.error(err);
+      if (err) throw err;
+
+      if (stats.isFile()) {
+        this.openFile(targetPath);
+      } else if (stats.isDirectory()) {
+        this.currentPath = targetPath;
+        this.updateEntries();
       } else {
-        if (stats.isFile()) {
-          this.openFile(targetPath);
-        } else if (stats.isDirectory()) {
-          this.currentPath = targetPath;
-          this.updateEntries();
-        } else {
-          console.error(new Error(`Unknown file system object: ${targetPath}`));
-        }
+        console.error(new Error(`Unknown file system object: ${targetPath}`));
       }
+
     });
   }
 
@@ -79,26 +78,39 @@ export class AppComponent implements OnInit {
   newFile() {
     console.log("New file");
 
-    let newFile = this.fs.createWriteStream('newFile.txt')
+    if(!this.nomeNovoArquivo) return;
+
+    let newFile = this.fs.createWriteStream(this.nomeNovoArquivo)
     newFile.write('Conteudo do novo arquivo');
 
     this.updateEntries();
   }
 
-  renameFile(path: string) {
-    console.log("Rename file");
+  newDir() {
+    console.log("New Dir");
+
+    this.fs.mkdir(this.currentPath + "\\" + this.nomeNovoDir, { recursive: true }, (err: Error) => {
+      if (err) throw err;
+    });
+
+    this.updateEntries();
+  }
+
+  renamePath(path: string) {
+    console.log("Rename Path");
     console.log(path);
 
-    this.fs.rename(path, 'newFile.txt', (err: Error) => {
+    this.fs.rename(path, this.novoNomeArquivo, (err: Error) => {
       if (err) throw err;
+      this.novoNomeArquivo = '';
       console.log('Rename complete!');
     });
 
     this.updateEntries();
   }
 
-  deleteFile(path: string) {
-    console.log("Delete file");
+  deletePath(path: string) {
+    console.log("Delete Path");
     console.log(path);
 
     this.fs.unlink(path, (err: Error) => {

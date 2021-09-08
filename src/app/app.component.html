@@ -1,17 +1,26 @@
 <button type="button" (click)="openModal()">
   Abrir Modal
 </button>
+<br>
 
+<input type="text" name="nomeNovoArquivo" [(ngModel)]="nomeNovoArquivo">
 <button type="button" (click)="newFile()">
-  Novo Arquivo
+  Criar Arquivo
+</button>
+
+<input type="text" name="nomeNovoDir" [(ngModel)]="nomeNovoDir">
+<button type="button" (click)="newDir()">
+  Criar Diretorio
 </button>
 
 <p>Arquivos</p>
 <ul *ngFor="let entry of entries">
   <li>
-    <p (click)="changeDir(entry)">{{entry}}
-      <button (click)="renameFile(entry)">Rename</button>
-      <button (click)="deleteFile(entry)">Delete</button>
-    </p>
+    <p (click)="changeDir(entry)">{{entry}}</p>
+
+    <input type="text" name="novoNomeArquivo" [(ngModel)]="novoNomeArquivo">
+    <button (click)="renamePath(entry)">Rename</button>
+    
+    <button (click)="deletePath(entry)">Delete</button>
   </li>
 </ul>
