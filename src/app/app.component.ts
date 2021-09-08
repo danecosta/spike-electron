@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IpcRenderer } from 'electron';
 
 @Component({
@@ -6,19 +6,21 @@ import { IpcRenderer } from 'electron';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'spike-electron';
   private ipc: IpcRenderer
   private fs: any
   private path: any
+  private shell: any
 
-  private currentPath: string = process.cwd();
+  private currentPath: string;
   entries: Array<string>;
 
   constructor() {
     if ((<any>window).require) {
       try {
         this.ipc = (<any>window).require('electron').ipcRenderer;
+        this.shell = (<any>window).require('electron').shell
         this.fs = (<any>window).require("fs");
         this.path = (<any>window).require("path");
       } catch (e) {
@@ -27,13 +29,11 @@ export class AppComponent {
     } else {
       console.warn('App not running inside Electron!');
     }
-
-    this.updateEntries();
   }
 
-  openModal() {
-    console.log("Open a modal");
-    this.ipc.send("openModal");
+  ngOnInit() {
+    this.currentPath = process.cwd();
+    this.updateEntries();
   }
 
   private updateEntries() {
@@ -65,9 +65,47 @@ export class AppComponent {
     });
   }
 
-  public openFile(path: string) {
+  openFile(path: string) {
     console.log("Open file");
-    this.fs.shell.openItem(path);
+    this.shell.openPath(path);
     return
+  }
+
+  openModal() {
+    console.log("Open a modal");
+    this.ipc.send("openModal");
+  }
+
+  newFile() {
+    console.log("New file");
+
+    let newFile = this.fs.createWriteStream('newFile.txt')
+    newFile.write('Conteudo do novo arquivo');
+
+    this.updateEntries();
+  }
+
+  renameFile(path: string) {
+    console.log("Rename file");
+    console.log(path);
+
+    this.fs.rename(path, 'newFile.txt', (err: Error) => {
+      if (err) throw err;
+      console.log('Rename complete!');
+    });
+
+    this.updateEntries();
+  }
+
+  deleteFile(path: string) {
+    console.log("Delete file");
+    console.log(path);
+
+    this.fs.unlink(path, (err: Error) => {
+      if (err) throw err;
+      console.log(path + ' was deleted');
+    });
+
+    this.updateEntries();
   }
 }

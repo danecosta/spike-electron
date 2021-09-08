@@ -2,9 +2,16 @@
   Abrir Modal
 </button>
 
+<button type="button" (click)="newFile()">
+  Novo Arquivo
+</button>
+
 <p>Arquivos</p>
 <ul *ngFor="let entry of entries">
   <li>
-    <p (click)="changeDir(entry)">{{entry}}</p>
+    <p (click)="changeDir(entry)">{{entry}}
+      <button (click)="renameFile(entry)">Rename</button>
+      <button (click)="deleteFile(entry)">Delete</button>
+    </p>
   </li>
 </ul>
