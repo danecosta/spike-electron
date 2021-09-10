@@ -15,8 +15,11 @@ export class AppComponent implements OnInit {
   nomeNovoArquivo: string;
   nomeNovoDir: string;
   novoNomeArquivo: string;
+  novoAtalho: string;
   currentPath: string;
   entries: Array<string>;
+
+  mapKeyboard = new Map<string, any>();
 
   constructor() {
     if ((<any>window).require) {
@@ -35,6 +38,20 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.currentPath = process.cwd();
+
+    // Dictionary keyboard
+    this.mapKeyboard.set("Backspace", this.changeDir('..'));
+    this.mapKeyboard.set("CommandOrControl+S", this.save());
+    this.mapKeyboard.set("CommandOrControl+O", this.openFolder());
+
+    //
+    this.ipc.send("request-keyboard-shortcut", "Backspace");
+
+    // Definição do que cada atalho faz
+    this.ipc.on('keyboard-shortcut-Backspace', () => {
+      this.changeDir('..');
+    });
+
     this.updateEntries();
   }
 
@@ -64,10 +81,18 @@ export class AppComponent implements OnInit {
     });
   }
 
-  openFile(path: string) {
-    console.log("Open file");
-    this.shell.openPath(path);
-    return
+  save() { }
+
+  openFolder() { }
+
+  modificarAtalho() {
+    const oldValue = this.mapKeyboard.get('Backspace');
+    console.log("Old value " + oldValue)
+
+    this.mapKeyboard.delete('Backspace');
+    this.ipc.send("unregister-keyboard-shortcut", 'Backspace');
+
+    this.mapKeyboard.set(this.novoAtalho, oldValue.value);
   }
 
   openModal() {
@@ -75,10 +100,17 @@ export class AppComponent implements OnInit {
     this.ipc.send("openModal");
   }
 
+  //#region Gerenciamento de arquivos
+  openFile(path: string) {
+    console.log("Open file");
+    this.shell.openPath(path);
+    return
+  }
+
   newFile() {
     console.log("New file");
 
-    if(!this.nomeNovoArquivo) return;
+    if (!this.nomeNovoArquivo) return;
 
     let newFile = this.fs.createWriteStream(this.nomeNovoArquivo)
     newFile.write('Conteudo do novo arquivo');
@@ -120,4 +152,5 @@ export class AppComponent implements OnInit {
 
     this.updateEntries();
   }
+  //#endregion
 }

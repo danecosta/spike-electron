@@ -7,11 +7,19 @@
 <button type="button" (click)="newFile()">
   Criar Arquivo
 </button>
+<br>
 
 <input type="text" name="nomeNovoDir" [(ngModel)]="nomeNovoDir">
 <button type="button" (click)="newDir()">
   Criar Diretorio
 </button>
+<br>
+
+<input type="text" name="novoAtalho" [(ngModel)]="novoAtalho">
+<button type="button" (click)="modificarAtalho()">
+  Trocar atalho
+</button>
+<br>
 
 <p>Arquivos</p>
 <ul *ngFor="let entry of entries">
@@ -20,7 +28,7 @@
 
     <input type="text" name="novoNomeArquivo" [(ngModel)]="novoNomeArquivo">
     <button (click)="renamePath(entry)">Rename</button>
-    
+
     <button (click)="deletePath(entry)">Delete</button>
   </li>
 </ul>

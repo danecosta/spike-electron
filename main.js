@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
 const url = require("url");
 const path = require("path");
 
@@ -58,4 +58,16 @@ function openModal() {
 
 ipcMain.on('openModal', (event, arg) => {
   openModal()
+})
+
+ipcMain.on('request-keyboard-shortcut', (event, shortcut) => {
+  globalShortcut.register(shortcut, () => {
+    event.sender.send(`keyboard-shortcut-${shortcut}`);
+  });
+})
+
+ipcMain.on('unregister-keyboard-shortcut', (event, shortcut) => {
+  globalShortcut.unregister(shortcut, () => {
+    event.sender.send(`keyboard-shortcut-${shortcut}`);
+  });
 })
